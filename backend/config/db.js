@@ -1,11 +1,16 @@
 import mongoose from "mongoose";
 
 export const connectDB = async () => {
-	try {
-		const conn = await mongoose.connect(process.env.MONGO_URI);
-		console.log(`MongoDB Connected: ${conn.connection.host}`);
-	} catch (error) {
-		console.error(`Error: ${error.message}`);
-		process.exit(1); // process code 1 code means exit with failure, 0 means success
-	}
+  if (!process.env.MONGO_URI) {
+    console.error("Error: MONGO_URI is undefined. Set it in Render environment variables!");
+    process.exit(1);
+  }
+
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
 };
