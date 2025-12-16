@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+const API_BASE = "https://mern-crash-course-7-s9c5.onrender.com/api";
+
 export const useProductStore = create((set) => ({
 	products: [],
 	setProducts: (products) => set({ products }),
@@ -7,11 +9,9 @@ export const useProductStore = create((set) => ({
 		if (!newProduct.name || !newProduct.image || !newProduct.price) {
 			return { success: false, message: "Please fill in all fields." };
 		}
-		const res = await fetch("/api/products", {
+		const res = await fetch(`${API_BASE}/products`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(newProduct),
 		});
 		const data = await res.json();
@@ -19,37 +19,28 @@ export const useProductStore = create((set) => ({
 		return { success: true, message: "Product created successfully" };
 	},
 	fetchProducts: async () => {
-		const res = await fetch("/api/products");
+		const res = await fetch(`${API_BASE}/products`);
 		const data = await res.json();
 		set({ products: data.data });
 	},
 	deleteProduct: async (pid) => {
-		const res = await fetch(`/api/products/${pid}`, {
-			method: "DELETE",
-		});
+		const res = await fetch(`${API_BASE}/products/${pid}`, { method: "DELETE" });
 		const data = await res.json();
 		if (!data.success) return { success: false, message: data.message };
-
-		// update the ui immediately, without needing a refresh
 		set((state) => ({ products: state.products.filter((product) => product._id !== pid) }));
 		return { success: true, message: data.message };
 	},
 	updateProduct: async (pid, updatedProduct) => {
-		const res = await fetch(`/api/products/${pid}`, {
+		const res = await fetch(`${API_BASE}/products/${pid}`, {
 			method: "PUT",
-			headers: {
-				"Content-Type": "application/json",
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(updatedProduct),
 		});
 		const data = await res.json();
 		if (!data.success) return { success: false, message: data.message };
-
-		// update the ui immediately, without needing a refresh
 		set((state) => ({
 			products: state.products.map((product) => (product._id === pid ? data.data : product)),
 		}));
-
 		return { success: true, message: data.message };
 	},
 }));
